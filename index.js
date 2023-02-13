@@ -1,23 +1,51 @@
-const linkHome = document.getElementById("link-home");
-const linkAbout = document.getElementById("link-about");   
-const root = document.getElementById("root");
+const linkHome= document.getElementById("link-home");
+const linkAbout= document.getElementById("link-about");
+const root= document.getElementById("root");
 
-// untuk mencegah meminta file html baru
-linkHome.onclick = function(event) {
+linkHome.onclick = function(event){
     event.preventDefault();
-    root.textContent = "Welcome to Home";
-    // krn di awal sudah berhasil tanpa meminta file lagi, maka disini dibuat agar tanpa meminta file namun berubah file.html di link atas website nya
+    const homeScreen = HomeScreen();
+    root.innerHTML = "";
+    root.append(homeScreen);
     history.pushState(null, "", event.target.href);
 };
 
-linkAbout.onclick = function(event) {
+linkAbout.onclick = function(event){
     event.preventDefault();
-    root.textContent = "Welcome to About";
+    const aboutScreen = AboutScreen();
+    root.innerHTML = "";
+    root.append(aboutScreen);
     history.pushState(null, "", event.target.href);
 };
+
+function AboutScreen(){
+    const text = document.createElement("p");
+    text.textContent = "Welcome to About";
+    return text;
+}
+
+function HomeScreen() {
+    const textPreview = document.createElement("p");
+
+    const input = document.createElement("input");
+    input.oninput = function (event){
+        textPreview.textContent = event.target.value;
+    }
+    input.placeholder = "Enter your name";
+
+    const div = document.createElement("div");
+    div.append(input);
+    div.append(textPreview);
+
+    return div;
+}
 
 if (location.hash == "#about"){
-    root.textContent = "Welcome to About";
-} else if (location.hash == "#home") {
-    root.textContent = "Welcome to Home";
+    const aboutScreen = AboutScreen();
+    root.innerHTML = "";
+    root.append(aboutScreen);
+} else if (location.hash == "#home"){
+    const homeScreen = HomeScreen();
+    root.innerHTML = "";
+    root.append(homeScreen);
 }
