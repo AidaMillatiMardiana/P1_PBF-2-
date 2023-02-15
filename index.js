@@ -1,79 +1,119 @@
+let state = {
+  inputValue: "",
+  hash: location.hash,
+};
+
+function setState(newState) {
+  state = { ...state, ...newState };
+  render();
+}
+
 function Link(props) {
-    const a = document.createElement("a");
-    a.href = props.href;
-    a.textContent = props.label;
-    a.onclick = function (event) {
+  const link = document.createElement("a");
+  link.href = props.href;
+  link.textContent = props.label;
+  link.onclick = function (event) {
       event.preventDefault();
+      const url = new URL(event.target.href);
+      setState({ hash: url.hash });
       history.pushState(null, "", event.target.href);
       render();
-    };
-    return a;
+  };
+
+  return link;
+}
+
+function Navbar() {
+  const linkHome = Link({
+      href: "#home",
+      label: "Home",
+  });
+
+  const linkAbout = Link({
+      href: "#about",
+      label: "About",
+  });
+
+  const div = document.createElement("div");
+  div.append(linkHome);
+  div.append(linkAbout);
+
+  return div;
+}
+
+function HomeScreen() {
+  const navbar = Navbar();
+
+  const textPreview = document.createElement('p');
+  textPreview.textContent = state.inputValue;
+
+  const input = document.createElement("input");
+  input.id = "input";
+  input.value = state.inputValue;
+  input.oninput = function (event) {
+      setState({ inputValue: event.target.value });
+  };
+  input.placeholder = "Enter your name";
+
+  const buttonClear = document.createElement("button");
+  buttonClear.textContent = "Clear";
+  buttonClear.onclick = function () {
+      setState({ inputValue: "" });
   }
-  
-  function Navbar() {
-    const linkHome = Link({ href: "#home", label: "Home" });
-    const linkAbout = Link({ href: "#about", label: "About" });
-  
-    const div = document.createElement("div");
-    div.append(linkHome);
-    div.append(linkAbout);
-  
-    return div;
+
+  const div = document.createElement("div");
+  div.append(navbar);
+  div.append(input);
+  div.append(buttonClear);
+  div.append(textPreview);
+
+  return div;
+}
+
+function AboutScreen() {
+  const linkHome = Link({
+      href: "#home",
+      label: "Kembali ke Home",
+  });
+
+  const text = document.createElement("p");
+  text.textContent = "Welcome to About";
+
+  const div = document.createElement("div");
+  div.append(linkHome);
+  div.append(text);
+
+  return div;
+}
+
+function App() {
+  const homeScreen = HomeScreen();
+  const aboutScreen = AboutScreen();
+
+  if (state.hash == "#about") {
+      return aboutScreen;
+  } else if (state.hash == "#home") {
+      return homeScreen;
   }
-  
-  function HomePage() {
-    const navbar = Navbar();
-  
-    const p = document.createElement("p");
-    p.textContent = "Welcome to Home Page";
-  
-    const textPreview = document.createElement("p");
-  
-    const input = document.createElement("input");
-    input.placeholder = "enter your name";
-    input.oninput = function (event) {
-      textPreview.textContent = event.target.value;
-    };
-  
-    const div = document.createElement("div");
-    div.append(navbar);
-    div.append(p);
-    div.append(input);
-    div.append(textPreview);
-  
-    return div;
+}
+
+function render() {
+  const root = document.getElementById("root");
+  const app = App();
+
+  const focusedElementId = document.activeElement.id;
+  const focusedElementSelectionStart = document.activeElement.selectionStart;
+  const focusedElementSelectionEnd = document.activeElement.selectionEnd;
+
+  root.innerHTML = "";
+  root.append(app);
+
+  if (focusedElementId) {
+      const focusedElement = document.getElementById(focusedElementId);
+      focusedElement.focus();
+      focusedElement.selectionStart = focusedElementSelectionStart;
+      focusedElement.selectionEnd = focusedElementSelectionEnd;
   }
-  
-  function AboutPage() {
-    const linkHome = Link({ href: "#home", label: "Back to Home" });
-  
-    const p = document.createElement("p");
-    p.textContent = "Welcome to About Page";
-  
-    const div = document.createElement("div");
-    div.appendChild(linkHome);
-    div.appendChild(p);
-    return div;
-  }
-  
-  function App() {
-    const homePage = HomePage();
-    const aboutPage = AboutPage();
-  
-    if (window.location.hash == "#home") {
-      return homePage;
-    } else if (window.location.hash == "#about") {
-      return aboutPage;
-    } else {
-      return homePage;
-    }
-  }
-  
-  function render() {
-    const root = document.getElementById("root");
-    const app = App();
-    root.innerHTML = "";
-    root.appendChild(app);
-  }
-  
-  render();
+}
+
+render();
